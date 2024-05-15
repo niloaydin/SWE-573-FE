@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import { TextField, Button, Container, Grid, Typography } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { BASE_URL } from "../../baseUrl";
-export const API_URL = `${BASE_URL}/auth`;
 
 function Register() {
   const [formData, setFormData] = useState({
@@ -42,7 +41,7 @@ function Register() {
       return;
     }
     try {
-      const resp = await fetch(`${API_URL}/register`, {
+      const resp = await fetch(`${BASE_URL}/auth/register`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),

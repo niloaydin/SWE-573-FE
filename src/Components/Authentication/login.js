@@ -3,8 +3,6 @@ import { useNavigate } from "react-router-dom";
 import { BASE_URL } from "../../baseUrl";
 import { TextField, Button, Typography, Box } from "@mui/material";
 
-export const API_URL = `${BASE_URL}/auth`;
-
 function LoginPage() {
   const [formState, setFormState] = useState({});
   const [isLoading, setIsLoading] = useState(false);
@@ -19,7 +17,7 @@ function LoginPage() {
     console.log(formState);
     setIsLoading(true);
     try {
-      const resp = await fetch(`${API_URL}/login`, {
+      const resp = await fetch(`${BASE_URL}/auth/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formState),

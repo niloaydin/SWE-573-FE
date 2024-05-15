@@ -4,6 +4,7 @@ import PrivateRoutes from "./Auth/PrivateRoutes";
 import PublicRoutes from "./Auth/PublicRoutes";
 import LoginPage from "./Components/Authentication/login";
 import Register from "./Components/Authentication/register";
+import HomePage from "./Pages/HomePage";
 
 function App() {
   return (
@@ -11,7 +12,7 @@ function App() {
       <BrowserRouter>
         <Routes>
           <Route element={<PrivateRoutes />}>
-            <Route path="/" element={<div> Homepage </div>} />
+            <Route path="/" element={<HomePage />} />
             <Route
               path="/community/:id"
               element={<div> community detail page </div>}
