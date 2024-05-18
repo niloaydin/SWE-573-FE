@@ -27,6 +27,7 @@ function LoginPage() {
         const result = await resp.json();
         if (result.token !== null) {
           localStorage.setItem("token", result.token);
+          localStorage.setItem("userEmail", formState.email);
           navigate(`/`);
         }
       } else {
