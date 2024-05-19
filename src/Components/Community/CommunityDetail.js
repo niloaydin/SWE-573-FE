@@ -56,7 +56,7 @@ const CommunityDetail = () => {
     if (members.length > 0) {
       checkIsMember();
     }
-  }, [members, email]);
+  }, [community, members]);
 
   useEffect(() => {
     if (community !== null) {
