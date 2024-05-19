@@ -277,6 +277,24 @@ const CommunityDetail = () => {
     }
   };
 
+  const isUrl = (value) => {
+    const urlPattern = /^(ftp|http|https):\/\/[^ "]+$/;
+    return urlPattern.test(value);
+  };
+
+  const renderFieldValue = (value) => {
+    if (isUrl(value)) {
+      return (
+        <img
+          src={value}
+          alt="URL"
+          style={{ height: "100px", widht: "100px" }}
+        />
+      );
+    }
+    return value;
+  };
+
   const handleSeeMembers = () => {
     setOpenMembersModal(true);
   };
@@ -384,7 +402,7 @@ const CommunityDetail = () => {
                 {Object.keys(post.content).map((key) => (
                   <Typography key={key} color="text.secondary">
                     <strong>{key}: </strong>
-                    {post.content[key]}
+                    {renderFieldValue(post.content[key])}
                   </Typography>
                 ))}
                 <Button
