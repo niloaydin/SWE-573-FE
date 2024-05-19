@@ -51,8 +51,11 @@ const CreateCommunity = () => {
       });
 
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || "Failed to create community");
+        let errorData = await response.text();
+        if (errorData.includes("duplicate")) {
+          errorData = "Community with the same name exists!";
+        }
+        throw new Error(errorData);
       }
       const data = await response.json();
       navigate(`/community/${data.id}`);
