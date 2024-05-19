@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { Link, useParams } from "react-router-dom";
 
 import {
   Container,
@@ -7,6 +8,7 @@ import {
   Card,
   CardContent,
   Box,
+  Button,
 } from "@mui/material";
 import { BASE_URL } from "../baseUrl";
 import TopBar from "../Components/TopBar";
@@ -67,6 +69,7 @@ const HomePage = () => {
       if (response.ok) {
         const data = await response.json();
         setPosts(data);
+        console.log(data);
       } else {
         const error = await response.text();
         if (error === "Token has expired") {
@@ -91,9 +94,26 @@ const HomePage = () => {
     }
   }, [token]);
 
+  const isUrl = (value) => {
+    const urlPattern = /^(ftp|http|https):\/\/[^ "]+$/;
+    return urlPattern.test(value);
+  };
+
+  const renderFieldValue = (value) => {
+    if (isUrl(value)) {
+      return (
+        <img
+          src={value}
+          alt="URL"
+          style={{ height: "100px", widht: "100px" }}
+        />
+      );
+    }
+    return value;
+  };
+
   return (
     <>
-      {" "}
       <TopBar isLoggedIn={isLoggedIn} />
       <Container>
         <Typography variant="h4" gutterBottom>
@@ -129,9 +149,16 @@ const HomePage = () => {
                   {Object.keys(post.content).map((key) => (
                     <Typography key={key} color="text.secondary">
                       <strong>{key}: </strong>
-                      {post.content[key]}
+                      {renderFieldValue(post.content[key])}
                     </Typography>
                   ))}
+                  <Link
+                    to={`/community/${post.community.id}/post-details/${post.id}`}
+                  >
+                    <Button variant="contained" color="primary">
+                      Details
+                    </Button>
+                  </Link>
                 </CardContent>
               </Card>
             </Grid>
