@@ -9,7 +9,7 @@ import {
 import TemplateCard from "./TemplateCard"; // Import the TemplateCard component
 import { API_URL } from "../../baseUrl";
 
-const TemplateListDialog = ({ open, handleClose, templates }) => {
+const TemplateListDialog = ({ open, handleClose, templates, onDelete }) => {
   return (
     <>
       <Button onClick={open}>View Templates</Button>
@@ -17,7 +17,11 @@ const TemplateListDialog = ({ open, handleClose, templates }) => {
         <DialogTitle>Templates List</DialogTitle>
         <DialogContent>
           {templates.map((template) => (
-            <TemplateCard key={template.id} template={template} />
+            <TemplateCard
+              key={template.id}
+              template={template}
+              onDelete={onDelete}
+            />
           ))}
         </DialogContent>
         <DialogActions>

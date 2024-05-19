@@ -199,6 +199,35 @@ const CommunityDetail = () => {
     }
   };
 
+  const handleDeletePostTemplate = async (templateId) => {
+    try {
+      const token = localStorage.getItem("token");
+      const response = await fetch(
+        `${BASE_URL}/template/${id}/deleteTemplate/${templateId}`,
+        {
+          method: "DELETE",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      if (response.ok) {
+        setTemplates((prevTemplates) =>
+          prevTemplates.filter((template) => template.id !== templateId)
+        );
+        setPosts((prevPosts) =>
+          prevPosts.filter((post) => post.templateId !== templateId)
+        );
+      } else {
+        alert("Failed to delete template");
+      }
+    } catch (error) {
+      console.log(error.message);
+      alert(error.message);
+    }
+  };
+
   const handleLeaveCommunity = async (id) => {
     try {
       const token = localStorage.getItem("token");
@@ -354,6 +383,7 @@ const CommunityDetail = () => {
           open={openTemplateModal}
           handleClose={() => setOpenTemplateModal(false)}
           templates={templates}
+          onDelete={handleDeletePostTemplate}
         />
       )}
     </>

@@ -1,7 +1,7 @@
 import React from "react";
-import { Card, CardContent, Typography, Box } from "@mui/material";
+import { Card, CardContent, Typography, Box, Button } from "@mui/material";
 
-const TemplateCard = ({ template }) => {
+const TemplateCard = ({ template, onDelete }) => {
   return (
     <Card sx={{ minWidth: 275, marginBottom: 2 }}>
       <CardContent>
@@ -16,6 +16,9 @@ const TemplateCard = ({ template }) => {
             </Typography>
           ))}
         </Box>
+        <Button color="error" onClick={() => onDelete(template.id)}>
+          Delete
+        </Button>
       </CardContent>
     </Card>
   );
