@@ -34,7 +34,6 @@ const CommunityDetail = () => {
 
   const [openMembersModal, setOpenMembersModal] = useState(false);
   const [openTemplateModal, setOpenTemplateModal] = useState(false);
-  const [openCreatePostModal, setOpenCreatePostModal] = useState(false);
   const [openCreatePostTemplateModal, setOpenCreatePostTemplateModal] =
     useState(false);
   const [searchQuery, setSearchQuery] = useState("");
@@ -303,44 +302,43 @@ const CommunityDetail = () => {
     setOpenTemplateModal(true);
   };
 
-  const handleCreatePost = () => {
-    setOpenCreatePostModal(true);
-  };
-
-  //   const handleCloseCreatePostModal = () => {
-  //     setOpenCreatePostModal(false);
-  //   };
-
-  //   const handleCloseCreatePostTemplateModal = () => {
-  //     setOpenCreatePostTemplateModal(false);
-  //   };
-
   const handleSearchChange = (event) => {
     setSearchQuery(event.target.value);
   };
 
-  //   const filteredPosts = posts.filter((post) => {
-  //     const { title, content } = post;
-  //     const search = searchQuery.toLowerCase();
-  //     return (
-  //       title.toLowerCase().includes(search) ||
-  //       content.toLowerCase().includes(search)
-  //     );
-  //   });
+  const filteredPosts = posts.filter((post) => {
+    const search = searchQuery.toLowerCase();
+    return Object.keys(post.content).some((key) =>
+      post.content[key].toLowerCase().includes(search)
+    );
+  });
 
   return (
     <>
       <TopBar isLoggedIn={true}></TopBar>
       <Container>
-        <Typography variant="h6" gutterBottom>
-          {community && community.name}
-        </Typography>
-        <Typography variant="body1" gutterBottom>
-          {community && community.description}
-        </Typography>
-        <Typography variant="body1" gutterBottom>
-          Member Count: {community && members.length}
-        </Typography>
+        <TextField
+          variant="outlined"
+          label="Search"
+          value={searchQuery}
+          onChange={handleSearchChange}
+          style={{
+            marginTop: "20px",
+            marginBottom: "10px",
+            width: "100%",
+          }}
+        />
+        <div style={{ borderStyle: "solid", marginBottom: "10px" }}>
+          <Typography variant="h6" gutterBottom>
+            {community && community.name}
+          </Typography>
+          <Typography variant="body1" gutterBottom>
+            {community && community.description}
+          </Typography>
+          <Typography variant="body1" gutterBottom>
+            Member Count: {community && members.length}
+          </Typography>
+        </div>
 
         {isMember ? (
           <Button
@@ -393,7 +391,7 @@ const CommunityDetail = () => {
       </Container>
       <Container sx={{ marginTop: "20px" }}>
         <Box sx={{ marginTop: "20px", display: "flex", flexWrap: "wrap" }}>
-          {posts.map((post, index) => (
+          {filteredPosts.map((post, index) => (
             <Card key={post.id} sx={{ width: "100%", marginBottom: "20px" }}>
               <CardContent>
                 <Typography variant="body2" color="textSecondary">
