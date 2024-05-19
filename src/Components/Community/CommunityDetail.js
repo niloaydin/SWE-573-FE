@@ -15,6 +15,8 @@ import {
   InputLabel,
   Select,
   MenuItem,
+  FormControlLabel,
+  Checkbox,
 } from "@mui/material";
 import MembersModal from "./MembersListDialog";
 import TemplateListDialog from "./TemplateDialog";
@@ -40,7 +42,12 @@ const CommunityDetail = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [isAdvancedSearchActive, setIsAdvancedSearchActive] = useState(false);
   const [isPostOwner, setIsPostOwner] = useState(false);
-
+  const [editedCommunity, setEditedCommunity] = useState({
+    name: "",
+    description: "",
+    isPublic: false,
+  });
+  const [communityEditMode, setCommunityEditMode] = useState(false);
   const token = localStorage.getItem("token");
 
   const email = localStorage.getItem("userEmail");
@@ -50,6 +57,7 @@ const CommunityDetail = () => {
     fetchCommunityPosts(id);
     fetchCommunityMembers(id);
     fetchTemplates(id);
+    console.log("OWNER VAR MI", isOwner);
   }, [id]);
 
   useEffect(() => {
@@ -74,14 +82,60 @@ const CommunityDetail = () => {
   };
 
   const checkIsOwner = () => {
-    console.log("COMMUNITY EMAIL", community.owner?.email);
-    if (community.owner.email === email) {
-      setIsOwner(true);
+    if (community !== null || community !== undefined) {
+      if (community?.owner?.email === email) {
+        setIsOwner(true);
+      } else {
+        setIsOwner(false);
+      }
     } else {
-      setIsOwner(false);
+      alert("loading");
     }
   };
+  const handleCommunityEditInputChange = (event) => {
+    const { name, value, checked } = event.target;
+    setEditedCommunity((prevCommunity) => ({
+      ...prevCommunity,
+      [name]: name === "isPublic" ? checked : value,
+    }));
+  };
 
+  const handleEditClick = () => {
+    setEditedCommunity({
+      name: community.name,
+      description: community.description,
+      isPublic: community.isPublic,
+    });
+    setCommunityEditMode(!communityEditMode);
+  };
+  const handleCommunityEditSubmit = async () => {
+    try {
+      if (
+        editedCommunity["name"] === null ||
+        editedCommunity["name"] === undefined ||
+        editedCommunity["name"] === ""
+      ) {
+        throw new Error("Community name cannot be empty");
+      }
+      const response = await fetch(`${API_URL}/${id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(editedCommunity),
+      });
+
+      if (!response.ok) {
+        throw new Error(await response.text());
+      }
+      setCommunity(await response.json());
+      setCommunityEditMode(false);
+    } catch (error) {
+      console.error("Error updating community:", error);
+      alert(error.message);
+    }
+  };
   const fetchCommunityDetails = async (id) => {
     try {
       const token = localStorage.getItem("token");
@@ -366,227 +420,331 @@ const CommunityDetail = () => {
   return (
     <>
       <TopBar isLoggedIn={true}></TopBar>
-      <Container>
-        <TextField
-          variant="outlined"
-          label="Search"
-          value={searchQuery}
-          onChange={handleSearchChange}
-          style={{
-            marginTop: "20px",
-            marginBottom: "10px",
-            width: "100%",
-          }}
-        />
-        <div style={{ borderStyle: "solid", marginBottom: "10px" }}>
-          <Typography variant="h6" gutterBottom>
-            {community && community.name}
-          </Typography>
-          <Typography variant="body1" gutterBottom>
-            {community && community.description}
-          </Typography>
-          <Typography variant="body1" gutterBottom>
-            Member Count: {community && members.length}
-          </Typography>
-        </div>
+      {community ? (
+        <div>
+          <Container>
+            <TextField
+              variant="outlined"
+              label="Search"
+              value={searchQuery}
+              onChange={handleSearchChange}
+              style={{
+                marginTop: "20px",
+                marginBottom: "10px",
+                width: "100%",
+              }}
+            />
+            <div style={{ borderStyle: "solid", marginBottom: "10px" }}>
+              <Typography variant="h6" gutterBottom>
+                {community.name}
+              </Typography>
+              <Typography variant="body1" gutterBottom>
+                {community.description}
+              </Typography>
+              <Typography variant="body1" gutterBottom>
+                Member Count: {members.length}
+              </Typography>
+              {isOwner && (
+                <div style={{ marginBottom: "10px" }}>
+                  <Link to={`/community/${id}/create-template`}>
+                    <Button
+                      variant="contained"
+                      color="primary"
+                      sx={{ marginRight: "10px", marginTop: "10px" }}
+                    >
+                      Create Post Template
+                    </Button>
+                  </Link>
+                  <Button
+                    onClick={handleEditClick}
+                    variant="contained"
+                    color={communityEditMode ? "error" : "primary"}
+                    sx={{ marginRight: "10px", marginTop: "10px" }}
+                  >
+                    {communityEditMode ? "Close Edit" : "Edit Community"}
+                  </Button>
+                </div>
+              )}
+            </div>
 
-        {isMember ? (
-          <Button
-            variant="contained"
-            color="error"
-            onClick={() => handleLeaveCommunity(id)}
-          >
-            Leave Community
-          </Button>
-        ) : (
-          <Button
-            variant="contained"
-            color="primary"
-            onClick={() => handleJoinCommunity(id)}
-          >
-            Join Community
-          </Button>
-        )}
-
-        <Box>
-          {isOwner && (
-            <Link to={`/community/${id}/create-template`}>
+            {isMember ? (
+              <Button
+                variant="contained"
+                color="error"
+                onClick={() => handleLeaveCommunity(id)}
+              >
+                Leave Community
+              </Button>
+            ) : (
               <Button
                 variant="contained"
                 color="primary"
-                sx={{ marginRight: "10px", marginTop: "10px" }}
+                onClick={() => handleJoinCommunity(id)}
               >
-                Create Post Template
+                Join Community
               </Button>
-            </Link>
-          )}
-          <Link to={`/community/${id}/create-post`}>
-            <Button
-              variant="contained"
-              color="primary"
-              sx={{ marginRight: "10px", marginTop: "10px" }}
-            >
-              Create Post
-            </Button>
-          </Link>
-          <Button
-            variant="contained"
-            color="secondary"
-            onClick={handleSeeMembers}
-            sx={{ marginRight: "10px", marginTop: "10px" }}
-          >
-            See Members
-          </Button>
-          <Button
-            variant="contained"
-            color="secondary"
-            onClick={handleSeeTemplates}
-            sx={{ marginRight: "10px", marginTop: "10px" }}
-          >
-            See Post Templates
-          </Button>
-          <Button
-            variant="contained"
-            color={isAdvancedSearchActive ? "error" : "primary"}
-            sx={{ marginRight: "10px", marginTop: "10px" }}
-            onClick={() => setIsAdvancedSearchActive(!isAdvancedSearchActive)}
-          >
-            {!isAdvancedSearchActive
-              ? "Advanced Search"
-              : "Close Advanced Search"}
-          </Button>
-        </Box>
-      </Container>
-      {isAdvancedSearchActive ? (
-        <div>
-          <Container>
-            <Typography variant="h6" gutterBottom>
-              Advanced Search
-            </Typography>
-            <FormControl fullWidth>
-              <InputLabel>Select Template</InputLabel>
-              <Select value={selectedTemplate} onChange={handleTemplateChange}>
-                <MenuItem value="">Select Template</MenuItem>
-                {templates.map((template) => (
-                  <MenuItem key={template.id} value={template.id}>
-                    {template.name}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
+            )}
 
-            {selectedTemplate && (
-              <div>
-                {templates
-                  .find((template) => template.id === selectedTemplate)
-                  ?.datafields.map((field) => (
-                    <Box
-                      key={field.id}
-                      sx={{ marginBottom: "10px", marginTop: "20px" }}
-                    >
-                      <TextField
-                        label={field.name}
-                        style={{ width: "100%" }}
-                        value={fieldValues[field.name] || ""}
-                        type={field.type.toLowerCase()}
-                        onChange={(e) =>
-                          handleFieldValueChange(field.name, e.target.value)
-                        }
-                      />
-                    </Box>
-                  ))}
+            <Box>
+              <Link to={`/community/${id}/create-post`}>
                 <Button
                   variant="contained"
                   color="primary"
-                  onClick={handleSubmitForAdvancedSearch}
+                  sx={{ marginRight: "10px", marginTop: "10px" }}
                 >
-                  Search
+                  Create Post
                 </Button>
-              </div>
-            )}
-          </Container>
-          <Container sx={{ marginTop: "20px" }}>
-            <Box sx={{ marginTop: "20px", display: "flex", flexWrap: "wrap" }}>
-              {filteredPosts.map((post, index) => (
-                <Card
-                  key={post.id}
-                  sx={{ width: "100%", marginBottom: "20px" }}
-                >
-                  <CardContent>
-                    <Typography variant="body2" color="textSecondary">
-                      posted by: {post.created_by.username}
-                    </Typography>
-                    {Object.keys(post.content).map((key) => (
-                      <Typography key={key} color="text.secondary">
-                        <strong>{key}: </strong>
-                        {renderFieldValue(post.content[key])}
-                      </Typography>
-                    ))}
-                    <Button
-                      variant="contained"
-                      color="error"
-                      onClick={() => handleDeletePost(post.id)}
-                    >
-                      Delete
-                    </Button>
-                    <Link to={`/community/${id}/post-details/${post.id}`}>
-                      <Button variant="contained" color="primary">
-                        Details
-                      </Button>
-                    </Link>
-                  </CardContent>
-                </Card>
-              ))}
+              </Link>
+              <Button
+                variant="contained"
+                color="secondary"
+                onClick={handleSeeMembers}
+                sx={{ marginRight: "10px", marginTop: "10px" }}
+              >
+                See Members
+              </Button>
+              <Button
+                variant="contained"
+                color="secondary"
+                onClick={handleSeeTemplates}
+                sx={{ marginRight: "10px", marginTop: "10px" }}
+              >
+                See Post Templates
+              </Button>
+              <Button
+                variant="contained"
+                color={isAdvancedSearchActive ? "error" : "primary"}
+                sx={{ marginRight: "10px", marginTop: "10px" }}
+                onClick={() =>
+                  setIsAdvancedSearchActive(!isAdvancedSearchActive)
+                }
+              >
+                {!isAdvancedSearchActive
+                  ? "Advanced Search"
+                  : "Close Advanced Search"}
+              </Button>
             </Box>
           </Container>
+          {communityEditMode && (
+            // Input fields for editing
+            <div style={{ margin: "20px" }}>
+              <TextField
+                label="Community Name"
+                name="name"
+                value={editedCommunity.name}
+                onChange={handleCommunityEditInputChange}
+                fullWidth
+                required
+                style={{ marginTop: "20px", marginBottom: "20px" }}
+              />
+              <TextField
+                label="Description"
+                name="description"
+                value={editedCommunity.description}
+                onChange={handleCommunityEditInputChange}
+                fullWidth
+                multiline
+                rows={4}
+              />
+              <div style={{ marginTop: "10px" }}>
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      name="isPublic"
+                      checked={editedCommunity.isPublic}
+                      onChange={handleCommunityEditInputChange}
+                    />
+                  }
+                  label="Public"
+                />
+                <Button
+                  onClick={handleCommunityEditSubmit}
+                  color="primary"
+                  variant="contained"
+                >
+                  Save Changes
+                </Button>
+              </div>
+            </div>
+          )}
+          {isAdvancedSearchActive ? (
+            <div>
+              <Container>
+                <Typography variant="h6" gutterBottom>
+                  Advanced Search
+                </Typography>
+                <FormControl fullWidth>
+                  <InputLabel>Select Template</InputLabel>
+                  <Select
+                    value={selectedTemplate}
+                    onChange={handleTemplateChange}
+                  >
+                    <MenuItem value="">Select Template</MenuItem>
+                    {templates.map((template) => (
+                      <MenuItem key={template.id} value={template.id}>
+                        {template.name}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+
+                {selectedTemplate && (
+                  <div>
+                    {templates
+                      .find((template) => template.id === selectedTemplate)
+                      ?.datafields.map((field) => (
+                        <Box
+                          key={field.id}
+                          sx={{ marginBottom: "10px", marginTop: "20px" }}
+                        >
+                          <TextField
+                            label={field.name}
+                            style={{ width: "100%" }}
+                            value={fieldValues[field.name] || ""}
+                            type={field.type.toLowerCase()}
+                            onChange={(e) =>
+                              handleFieldValueChange(field.name, e.target.value)
+                            }
+                          />
+                        </Box>
+                      ))}
+                    <Button
+                      variant="contained"
+                      color="primary"
+                      onClick={handleSubmitForAdvancedSearch}
+                    >
+                      Search
+                    </Button>
+                  </div>
+                )}
+              </Container>
+              <Container sx={{ marginTop: "20px" }}>
+                <Box
+                  sx={{ marginTop: "20px", display: "flex", flexWrap: "wrap" }}
+                >
+                  {filteredPosts.map((post, index) => (
+                    <Card
+                      key={post.id}
+                      sx={{ width: "100%", marginBottom: "20px" }}
+                    >
+                      <CardContent>
+                        <Typography variant="body2" color="textSecondary">
+                          posted by: {post.created_by.username}
+                        </Typography>
+                        {Object.keys(post.content).map((key) => (
+                          <Typography key={key} color="text.secondary">
+                            <strong>{key}: </strong>
+                            {renderFieldValue(post.content[key])}
+                          </Typography>
+                        ))}
+                        <Button
+                          variant="contained"
+                          color="error"
+                          onClick={() => handleDeletePost(post.id)}
+                        >
+                          Delete
+                        </Button>
+                        <Link to={`/community/${id}/post-details/${post.id}`}>
+                          <Button variant="contained" color="primary">
+                            Details
+                          </Button>
+                        </Link>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </Box>
+              </Container>
+            </div>
+          ) : (
+            <Container sx={{ marginTop: "20px" }}>
+              <Box
+                sx={{ marginTop: "20px", display: "flex", flexWrap: "wrap" }}
+              >
+                {basicSearchPosts.map((post, index) => (
+                  <Card
+                    key={post.id}
+                    sx={{ width: "100%", marginBottom: "20px" }}
+                  >
+                    <CardContent>
+                      <Typography variant="body2" color="textSecondary">
+                        posted by: {post.created_by.username}
+                      </Typography>
+                      {Object.keys(post.content).map((key) => (
+                        <Typography key={key} color="text.secondary">
+                          <strong>{key}: </strong>
+                          {renderFieldValue(post.content[key])}
+                        </Typography>
+                      ))}
+                      <Button
+                        variant="contained"
+                        color="error"
+                        onClick={() => handleDeletePost(post.id)}
+                      >
+                        Delete
+                      </Button>
+                      <Link to={`/community/${id}/post-details/${post.id}`}>
+                        <Button variant="contained" color="primary">
+                          Details
+                        </Button>
+                      </Link>
+                    </CardContent>
+                  </Card>
+                ))}
+              </Box>
+            </Container>
+          )}
+          {openMembersModal && (
+            <MembersModal
+              open={openMembersModal}
+              handleClose={() => setOpenMembersModal(false)}
+              members={members}
+            />
+          )}
+          {openTemplateModal && (
+            <TemplateListDialog
+              open={openTemplateModal}
+              handleClose={() => setOpenTemplateModal(false)}
+              templates={templates}
+              onDelete={handleDeletePostTemplate}
+            />
+          )}
+          {/* {communityEditMode && (
+        // Input fields for editing
+        <>
+          <TextField
+            label="Community Name"
+            name="name"
+            value={editedCommunity.name}
+            onChange={handleCommunityEditInputChange}
+            fullWidth
+            required
+          />
+          <TextField
+            label="Description"
+            name="description"
+            value={editedCommunity.description}
+            onChange={handleCommunityEditInputChange}
+            fullWidth
+            required
+            multiline
+            rows={4}
+          />
+          <FormControlLabel
+            control={
+              <Checkbox
+                name="isPublic"
+                checked={editedCommunity.isPublic}
+                onChange={handleCommunityEditInputChange}
+              />
+            }
+            label="Is Public"
+          />
+          <Button onClick={handleCommunityEditSubmit}>Save Changes</Button>
+        </>
+      )} */}
         </div>
       ) : (
-        <Container sx={{ marginTop: "20px" }}>
-          <Box sx={{ marginTop: "20px", display: "flex", flexWrap: "wrap" }}>
-            {basicSearchPosts.map((post, index) => (
-              <Card key={post.id} sx={{ width: "100%", marginBottom: "20px" }}>
-                <CardContent>
-                  <Typography variant="body2" color="textSecondary">
-                    posted by: {post.created_by.username}
-                  </Typography>
-                  {Object.keys(post.content).map((key) => (
-                    <Typography key={key} color="text.secondary">
-                      <strong>{key}: </strong>
-                      {renderFieldValue(post.content[key])}
-                    </Typography>
-                  ))}
-                  <Button
-                    variant="contained"
-                    color="error"
-                    onClick={() => handleDeletePost(post.id)}
-                  >
-                    Delete
-                  </Button>
-                  <Link to={`/community/${id}/post-details/${post.id}`}>
-                    <Button variant="contained" color="primary">
-                      Details
-                    </Button>
-                  </Link>
-                </CardContent>
-              </Card>
-            ))}
-          </Box>
-        </Container>
-      )}
-      {openMembersModal && (
-        <MembersModal
-          open={openMembersModal}
-          handleClose={() => setOpenMembersModal(false)}
-          members={members}
-        />
-      )}
-      {openTemplateModal && (
-        <TemplateListDialog
-          open={openTemplateModal}
-          handleClose={() => setOpenTemplateModal(false)}
-          templates={templates}
-          onDelete={handleDeletePostTemplate}
-        />
+        <Typography>Loading...</Typography>
       )}
     </>
   );
