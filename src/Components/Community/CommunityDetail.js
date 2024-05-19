@@ -199,6 +199,27 @@ const CommunityDetail = () => {
     }
   };
 
+  const handleDeletePost = async (postId) => {
+    try {
+      const token = localStorage.getItem("token");
+      const response = await fetch(`${API_URL}/${id}/deletePost/${postId}`, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (response.ok) {
+        setPosts((prevPosts) => prevPosts.filter((post) => post.id !== postId));
+      } else {
+        throw new Error(await response.text());
+      }
+    } catch (error) {
+      alert(error.message);
+    }
+  };
+
   const handleDeletePostTemplate = async (templateId) => {
     try {
       const token = localStorage.getItem("token");
@@ -366,6 +387,13 @@ const CommunityDetail = () => {
                     {post.content[key]}
                   </Typography>
                 ))}
+                <Button
+                  variant="contained"
+                  color="error"
+                  onClick={() => handleDeletePost(post.id)}
+                >
+                  Delete
+                </Button>
               </CardContent>
             </Card>
           ))}
