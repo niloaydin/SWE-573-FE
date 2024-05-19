@@ -11,6 +11,7 @@ import CreatePostTemplate from "./Components/Community/CreatePostTemplate";
 import CommunitiesPage from "./Pages/Communities";
 import CreatePost from "./Components/Community/CreatePost";
 import PostDetail from "./Components/Posts/PostDetail";
+import ProfilePage from "./Components/User/ProfilePage";
 
 function App() {
   return (
@@ -31,6 +32,7 @@ function App() {
               path="/community/:communityId/post-details/:postId"
               element={<PostDetail />}
             />
+            <Route path="/profile" element={<ProfilePage />} />
           </Route>
           <Route element={<PublicRoutes />}>
             <Route path="/login" element={<LoginPage />} />

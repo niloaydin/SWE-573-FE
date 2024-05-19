@@ -56,6 +56,10 @@ function TopBar({ isLoggedIn }) {
             <Button color="inherit" component={Link} to="/communities">
               Communities
             </Button>
+            <Button color="inherit" component={Link} to="/profile">
+              Profile
+            </Button>
+
             <Button color="inherit" onClick={handleLogout}>
               Logout
             </Button>
