@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Container, Typography, Box } from "@mui/material";
+import { Container, Typography, Grid } from "@mui/material";
 import TopBar from "../Components/TopBar";
 import CommunityCard from "../Components/Community/CommunityCard";
 import { BASE_URL } from "../baseUrl";
@@ -42,16 +42,18 @@ const CommunitiesPage = () => {
           All Communities
         </Typography>
         {error && <Typography color="error">{error}</Typography>}
-        <Box display="flex" flexDirection="column" alignItems="center">
+        <Grid container spacing={2}>
           {communities.map((community) => (
-            <CommunityCard
-              key={community.id}
-              name={community.name}
-              description={community.description}
-              id={community.id}
-            />
+            <Grid item xs={12} sm={6} md={4} lg={3} key={community.id}>
+              <CommunityCard
+                key={community.id}
+                name={community.name}
+                description={community.description}
+                id={community.id}
+              />
+            </Grid>
           ))}
-        </Box>
+        </Grid>
       </Container>
     </>
   );

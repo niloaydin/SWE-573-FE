@@ -40,7 +40,9 @@ function TopBar({ isLoggedIn }) {
           component="div"
           style={{ marginRight: "auto" }}
         >
-          My App
+          <Link to="/" style={{ textDecoration: "none", color: "inherit" }}>
+            CaliforniCommunication
+          </Link>
         </Typography>
 
         {isLoggedIn ? (
