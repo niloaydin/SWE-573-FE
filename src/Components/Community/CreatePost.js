@@ -9,7 +9,6 @@ const CreatePost = () => {
   const [templates, setTemplates] = useState([]);
   const [selectedTemplate, setSelectedTemplate] = useState(null);
   const [fieldValues, setFieldValues] = useState({});
-  const [error, setError] = useState(null);
   const token = localStorage.getItem("token");
   const navigate = useNavigate();
 
@@ -61,7 +60,11 @@ const CreatePost = () => {
     const templateId = parseInt(event.target.value);
     const template = templates.find((template) => template.id === templateId);
     setSelectedTemplate(template);
-    setFieldValues({});
+    // const initialFieldValues = {};
+    // template.datafields.forEach((field) => {
+    //   initialFieldValues[field.name] = "";
+    // });
+    // setFieldValues(initialFieldValues);
   };
 
   const handleFieldValueChange = (fieldName, value) => {
@@ -86,13 +89,14 @@ const CreatePost = () => {
         },
         body: JSON.stringify(fieldValues),
       });
+
       if (!response.ok) {
         throw new Error(await response.text());
       }
       alert("post created!");
       navigate(`/community/${communityId}`);
     } catch (error) {
-      setError(error.message);
+      alert(error.message);
     }
   };
 
@@ -117,7 +121,7 @@ const CreatePost = () => {
             >
               <TextField
                 label={field.name}
-                value={fieldValues[field.name] || ""}
+                value={fieldValues[field.name]}
                 type={field.type.toLowerCase()}
                 onChange={(e) =>
                   handleFieldValueChange(field.name, e.target.value)
@@ -130,7 +134,6 @@ const CreatePost = () => {
           </Button>
         </div>
       )}
-      {error && <p>{error}</p>}
     </div>
   );
 };
