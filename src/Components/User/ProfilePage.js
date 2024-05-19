@@ -1,15 +1,9 @@
 import React, { useState, useEffect } from "react";
-import {
-  Typography,
-  Avatar,
-  Grid,
-  List,
-  ListItem,
-  ListItemText,
-} from "@mui/material";
+import { Typography, Avatar, Grid, List, Button } from "@mui/material";
 import TopBar from "../TopBar";
 import { BASE_URL } from "../../baseUrl";
 import CommunityCard from "../Community/CommunityCard";
+import { Link } from "react-router-dom";
 
 const ProfilePage = () => {
   const [userData, setUserData] = useState(null);
@@ -72,6 +66,9 @@ const ProfilePage = () => {
                   </Typography>
                 </div>
               </div>
+              <Link to={`/edit-profile`}>
+                <Button> Edit Profile</Button>
+              </Link>
             </Grid>
             <Grid item xs={12} sm={4}>
               <Typography variant="h6">Communities Owned</Typography>
