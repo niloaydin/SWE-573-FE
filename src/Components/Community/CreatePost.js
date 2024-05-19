@@ -71,6 +71,7 @@ const CreatePost = () => {
   const handleSubmit = async () => {
     try {
       const token = localStorage.getItem("token");
+      console.log("FIELDSSSS", fieldValues);
       let postCreationUrl;
       if (selectedTemplate.name === "Default Template") {
         postCreationUrl = `${BASE_URL}/post/${communityId}/create`;
@@ -117,6 +118,7 @@ const CreatePost = () => {
               <TextField
                 label={field.name}
                 value={fieldValues[field.name] || ""}
+                type={field.type.toLowerCase()}
                 onChange={(e) =>
                   handleFieldValueChange(field.name, e.target.value)
                 }
