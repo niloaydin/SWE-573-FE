@@ -9,6 +9,7 @@ import {
   CardContent,
   Box,
   Button,
+  TextField,
 } from "@mui/material";
 import { BASE_URL } from "../baseUrl";
 import TopBar from "../Components/TopBar";
@@ -19,6 +20,7 @@ const HomePage = () => {
   const [posts, setPosts] = useState([]);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const token = localStorage.getItem("token");
+  const [searchQuery, setSearchQuery] = useState("");
 
   const fetchCommunities = async () => {
     try {
@@ -50,7 +52,17 @@ const HomePage = () => {
       alert(error.message);
     }
   };
+  const handleSearchChange = (event) => {
+    setSearchQuery(event.target.value);
+  };
 
+  const filteredCommunities = communities.filter((community) => {
+    const search = searchQuery.toLowerCase();
+    return (
+      community.name.toLowerCase().includes(search) ||
+      community.description.toLowerCase().includes(search)
+    );
+  });
   const fetchPosts = async () => {
     try {
       const token = localStorage.getItem("token");
@@ -116,11 +128,22 @@ const HomePage = () => {
     <>
       <TopBar isLoggedIn={isLoggedIn} />
       <Container>
+        <TextField
+          variant="outlined"
+          label="Search for Communities"
+          value={searchQuery}
+          onChange={handleSearchChange}
+          style={{
+            marginTop: "10px",
+            marginBottom: "10px",
+            width: "100%",
+          }}
+        />
         <Typography variant="h4" gutterBottom>
           Communities
         </Typography>
         <Grid container spacing={3}>
-          {communities.map((community) => (
+          {filteredCommunities.map((community) => (
             <Box
               key={community.id}
               width={{ xs: "100%", sm: "50%", md: "33.33%", lg: "25%" }}
@@ -139,30 +162,32 @@ const HomePage = () => {
           Latest Posts
         </Typography>
         <Grid container spacing={3}>
-          {posts.map((post) => (
-            <Grid item key={post.id} xs={12} sm={6} md={4}>
-              <Card>
-                <CardContent>
-                  <Typography variant="body2" color="textSecondary">
-                    posted by: {post.created_by.username}
-                  </Typography>
-                  {Object.keys(post.content).map((key) => (
-                    <Typography key={key} color="text.secondary">
-                      <strong>{key}: </strong>
-                      {renderFieldValue(post.content[key])}
+          {posts
+            .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+            .map((post) => (
+              <Grid item key={post.id} xs={12} sm={6} md={4}>
+                <Card>
+                  <CardContent>
+                    <Typography variant="body2" color="textSecondary">
+                      posted by: {post.created_by.username}
                     </Typography>
-                  ))}
-                  <Link
-                    to={`/community/${post.community.id}/post-details/${post.id}`}
-                  >
-                    <Button variant="contained" color="primary">
-                      Details
-                    </Button>
-                  </Link>
-                </CardContent>
-              </Card>
-            </Grid>
-          ))}
+                    {Object.keys(post.content).map((key) => (
+                      <Typography key={key} color="text.secondary">
+                        <strong>{key}: </strong>
+                        {renderFieldValue(post.content[key])}
+                      </Typography>
+                    ))}
+                    <Link
+                      to={`/community/${post.community.id}/post-details/${post.id}`}
+                    >
+                      <Button variant="contained" color="primary">
+                        Details
+                      </Button>
+                    </Link>
+                  </CardContent>
+                </Card>
+              </Grid>
+            ))}
         </Grid>
       </Container>
     </>
