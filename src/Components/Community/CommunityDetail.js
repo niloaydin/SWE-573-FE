@@ -39,6 +39,7 @@ const CommunityDetail = () => {
   const [openTemplateModal, setOpenTemplateModal] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [isAdvancedSearchActive, setIsAdvancedSearchActive] = useState(false);
+  const [isPostOwner, setIsPostOwner] = useState(false);
 
   const token = localStorage.getItem("token");
 
@@ -528,6 +529,11 @@ const CommunityDetail = () => {
                     >
                       Delete
                     </Button>
+                    <Link to={`/community/${id}/post-details/${post.id}`}>
+                      <Button variant="contained" color="primary">
+                        Details
+                      </Button>
+                    </Link>
                   </CardContent>
                 </Card>
               ))}
@@ -556,6 +562,11 @@ const CommunityDetail = () => {
                   >
                     Delete
                   </Button>
+                  <Link to={`/community/${id}/post-details/${post.id}`}>
+                    <Button variant="contained" color="primary">
+                      Details
+                    </Button>
+                  </Link>
                 </CardContent>
               </Card>
             ))}

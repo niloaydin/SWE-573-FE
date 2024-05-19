@@ -10,6 +10,7 @@ import CreateCommunity from "./Components/Community/CreateCommunity";
 import CreatePostTemplate from "./Components/Community/CreatePostTemplate";
 import CommunitiesPage from "./Pages/Communities";
 import CreatePost from "./Components/Community/CreatePost";
+import PostDetail from "./Components/Posts/PostDetail";
 
 function App() {
   return (
@@ -26,6 +27,10 @@ function App() {
             />
             <Route path="/community/:id/create-post" element={<CreatePost />} />
             <Route path="/communities" element={<CommunitiesPage />} />
+            <Route
+              path="/community/:communityId/post-details/:postId"
+              element={<PostDetail />}
+            />
           </Route>
           <Route element={<PublicRoutes />}>
             <Route path="/login" element={<LoginPage />} />

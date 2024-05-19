@@ -41,7 +41,7 @@ function TopBar({ isLoggedIn }) {
           style={{ marginRight: "auto" }}
         >
           <Link to="/" style={{ textDecoration: "none", color: "inherit" }}>
-            CaliforniCommunication
+            Californucation
           </Link>
         </Typography>
 
