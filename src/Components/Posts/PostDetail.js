@@ -170,6 +170,7 @@ const PostDetail = () => {
                         key={field.name}
                         name={field.name}
                         label={field.name}
+                        multiline
                         value={formData[field.name] || ""}
                         onChange={handleInputChange}
                         type={field.type.toLowerCase()}
