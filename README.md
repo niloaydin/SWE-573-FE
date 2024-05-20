@@ -38,9 +38,9 @@ You need to have docker installed in order to run the docker file.
 To build the Docker image, use the following command:
 
 ```bash
-docker build -t community-application .
+docker build -t community-application-frontend .
 ```
 #### Run the Docker Container
 To run the Docker container, use the following command:
 ```bash
-docker run -p 8080:8080 community-application
+docker run -p 3000:3000 community-application-frontend
