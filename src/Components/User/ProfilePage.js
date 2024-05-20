@@ -7,6 +7,7 @@ import { Link } from "react-router-dom";
 
 const ProfilePage = () => {
   const [userData, setUserData] = useState(null);
+  const [error, setError] = useState(null);
   const token = localStorage.getItem("token");
 
   useEffect(() => {
@@ -28,16 +29,30 @@ const ProfilePage = () => {
         setUserData(data);
       } catch (error) {
         console.error("Error fetching user data:", error.message);
-        alert(error.message);
+        setError(error.message);
       }
     };
 
     fetchUserData();
   }, []);
+  useEffect(() => {
+    if (error) {
+      const timer = setTimeout(() => {
+        setError(null);
+      }, 4000);
+
+      return () => clearTimeout(timer);
+    }
+  }, [error]);
 
   return (
     <div>
       <TopBar isLoggedIn={true} />
+      {error && (
+        <Typography variant="h6" color="red">
+          {error}
+        </Typography>
+      )}
       <div style={{ flexGrow: 1, marginTop: "16px" }}>
         {userData ? (
           <Grid container spacing={2}>
@@ -100,7 +115,7 @@ const ProfilePage = () => {
             </Grid>
           </Grid>
         ) : (
-          <Typography variant="body1">Loading...</Typography>
+          <Typography variant="h6">"Loading..."</Typography>
         )}
       </div>
     </div>

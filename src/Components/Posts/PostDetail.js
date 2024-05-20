@@ -19,6 +19,7 @@ const PostDetail = () => {
   const [formData, setFormData] = useState({});
   const [templates, setTemplates] = useState([]);
   const [template, setTemplate] = useState(null);
+  const [error, setError] = useState(null);
 
   const token = localStorage.getItem("token");
 
@@ -40,7 +41,7 @@ const PostDetail = () => {
           throw new Error(await response.text());
         }
       } catch (error) {
-        alert(error.message);
+        setError(error.message);
       }
     };
 
@@ -98,7 +99,7 @@ const PostDetail = () => {
       }
     } catch (error) {
       console.error("Error fetching templates:", error);
-      alert(error.message);
+      setError(error.message);
     }
   };
 
@@ -148,13 +149,27 @@ const PostDetail = () => {
         throw new Error(await response.text());
       }
     } catch (error) {
-      alert(error.message);
+      setError(error.message);
     }
   };
+  useEffect(() => {
+    if (error) {
+      const timer = setTimeout(() => {
+        setError(null);
+      }, 4000);
+
+      return () => clearTimeout(timer);
+    }
+  }, [error]);
 
   return (
     <>
       <TopBar isLoggedIn={true} />
+      {error && (
+        <Typography variant="h6" color="red">
+          {error}
+        </Typography>
+      )}
       <Container sx={{ marginTop: "20px" }}>
         <Box sx={{ marginTop: "20px", display: "flex", flexWrap: "wrap" }}>
           {post && (
@@ -171,10 +186,11 @@ const PostDetail = () => {
                         name={field.name}
                         label={field.name}
                         multiline
+                        fullWidth
                         value={formData[field.name] || ""}
                         onChange={handleInputChange}
                         type={field.type.toLowerCase()}
-                        sx={{ marginBottom: "10px" }}
+                        sx={{ marginBottom: "10px", marginTop: "10px" }}
                       />
                     ))}
                     <Button
@@ -188,10 +204,10 @@ const PostDetail = () => {
                 ) : (
                   <>
                     {Object.keys(post.content).map((key) => (
-                      <Typography key={key} color="text.secondary">
+                      <TextField multiline key={key} color="text.secondary">
                         <strong>{key}: </strong>
                         {renderFieldValue(post.content[key])}
-                      </Typography>
+                      </TextField>
                     ))}
                     <Button
                       variant="contained"

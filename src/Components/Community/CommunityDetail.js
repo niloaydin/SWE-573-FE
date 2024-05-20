@@ -42,6 +42,7 @@ const CommunityDetail = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [isAdvancedSearchActive, setIsAdvancedSearchActive] = useState(false);
   const [isPostOwner, setIsPostOwner] = useState(false);
+  const [error, setError] = useState(null);
   const [editedCommunity, setEditedCommunity] = useState({
     name: "",
     description: "",
@@ -132,8 +133,7 @@ const CommunityDetail = () => {
       setCommunity(await response.json());
       setCommunityEditMode(false);
     } catch (error) {
-      console.error("Error updating community:", error);
-      alert(error.message);
+      setError(error.message);
     }
   };
   const fetchCommunityDetails = async (id) => {
@@ -150,7 +150,7 @@ const CommunityDetail = () => {
       const singleCommunity = await resp.json();
       setCommunity(singleCommunity);
     } catch (err) {
-      alert(err.message);
+      setError(err.message);
     }
   };
 
@@ -169,7 +169,7 @@ const CommunityDetail = () => {
 
       setMembers(usersInCommunity);
     } catch (err) {
-      alert(err.message);
+      setError(err.message);
     }
   };
 
@@ -188,7 +188,7 @@ const CommunityDetail = () => {
 
       setPosts(postsInCommunity);
     } catch (err) {
-      alert(err.message);
+      setError(err.message);
     }
   };
   const fetchCurrentUserDetails = async () => {
@@ -250,17 +250,20 @@ const CommunityDetail = () => {
           setIsMember(true);
         }
       } else {
-        const errorData = await resp.json();
-        console.error("Failed to join community:", errorData);
+        const errorData = await resp.text();
+        setError(errorData);
       }
     } catch (err) {
-      console.error("Error joining community:", err);
-      alert(err.message);
+      setError(err.message);
     }
   };
 
   const handleDeletePost = async (postId) => {
     try {
+      if (!postId) {
+        console.log("POST ID YOK");
+        throw new Error("post does not exists!");
+      }
       const token = localStorage.getItem("token");
       const response = await fetch(`${API_URL}/${id}/deletePost/${postId}`, {
         method: "DELETE",
@@ -276,7 +279,7 @@ const CommunityDetail = () => {
         throw new Error(await response.text());
       }
     } catch (error) {
-      alert(error.message);
+      setError(error.message);
     }
   };
 
@@ -301,11 +304,10 @@ const CommunityDetail = () => {
           prevPosts.filter((post) => post.templateId !== templateId)
         );
       } else {
-        alert("Failed to delete template");
+        setError("Failed to delete template");
       }
     } catch (error) {
-      console.log(error.message);
-      alert(error.message);
+      setError(error.message);
     }
   };
 
@@ -332,8 +334,7 @@ const CommunityDetail = () => {
         setIsMember(false);
       }
     } catch (err) {
-      console.error("Error leaving community:", err);
-      alert(err.message);
+      setError(err.message);
     }
   };
 
@@ -376,7 +377,7 @@ const CommunityDetail = () => {
         throw new Error(await response.text());
       }
     } catch (error) {
-      alert(error.message);
+      setError(error.message);
     }
   };
 
@@ -417,9 +418,24 @@ const CommunityDetail = () => {
     );
   });
 
+  useEffect(() => {
+    if (error) {
+      const timer = setTimeout(() => {
+        setError(null);
+      }, 4000);
+
+      return () => clearTimeout(timer);
+    }
+  }, [error]);
+
   return (
     <>
       <TopBar isLoggedIn={true}></TopBar>
+      {error && (
+        <Typography variant="h6" color="red">
+          {error}
+        </Typography>
+      )}
       {community ? (
         <div>
           <Container>
@@ -622,36 +638,37 @@ const CommunityDetail = () => {
                 <Box
                   sx={{ marginTop: "20px", display: "flex", flexWrap: "wrap" }}
                 >
-                  {filteredPosts.map((post, index) => (
-                    <Card
-                      key={post.id}
-                      sx={{ width: "100%", marginBottom: "20px" }}
-                    >
-                      <CardContent>
-                        <Typography variant="body2" color="textSecondary">
-                          posted by: {post.created_by.username}
-                        </Typography>
-                        {Object.keys(post.content).map((key) => (
-                          <Typography key={key} color="text.secondary">
-                            <strong>{key}: </strong>
-                            {renderFieldValue(post.content[key])}
+                  {filteredPosts &&
+                    filteredPosts.map((post, index) => (
+                      <Card
+                        key={post.id}
+                        sx={{ width: "100%", marginBottom: "20px" }}
+                      >
+                        <CardContent>
+                          <Typography variant="body2" color="textSecondary">
+                            posted by: {post.created_by.username}
                           </Typography>
-                        ))}
-                        <Button
-                          variant="contained"
-                          color="error"
-                          onClick={() => handleDeletePost(post.id)}
-                        >
-                          Delete
-                        </Button>
-                        <Link to={`/community/${id}/post-details/${post.id}`}>
-                          <Button variant="contained" color="primary">
-                            Details
+                          {Object.keys(post.content).map((key) => (
+                            <Typography key={key} color="text.secondary">
+                              <strong>{key}: </strong>
+                              {renderFieldValue(post.content[key])}
+                            </Typography>
+                          ))}
+                          <Button
+                            variant="contained"
+                            color="error"
+                            onClick={() => handleDeletePost(post.id)}
+                          >
+                            Delete
                           </Button>
-                        </Link>
-                      </CardContent>
-                    </Card>
-                  ))}
+                          <Link to={`/community/${id}/post-details/${post.id}`}>
+                            <Button variant="contained" color="primary">
+                              Details
+                            </Button>
+                          </Link>
+                        </CardContent>
+                      </Card>
+                    ))}
                 </Box>
               </Container>
             </div>

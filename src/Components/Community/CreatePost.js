@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { TextField, Button, Box } from "@mui/material";
+import { TextField, Button, Box, Typography } from "@mui/material";
 import { BASE_URL } from "../../baseUrl";
 import TopBar from "../TopBar";
 
@@ -9,6 +9,7 @@ const CreatePost = () => {
   const [templates, setTemplates] = useState([]);
   const [selectedTemplate, setSelectedTemplate] = useState(null);
   const [fieldValues, setFieldValues] = useState({});
+  const [error, setError] = useState(null);
   const token = localStorage.getItem("token");
   const navigate = useNavigate();
 
@@ -48,11 +49,10 @@ const CreatePost = () => {
           : communityTemplates;
         setTemplates(combinedTemplates);
       } else {
-        console.error("Failed to fetch templates");
+        setError("Failed to fetch templates");
       }
     } catch (error) {
-      console.error("Error fetching templates:", error);
-      alert(error.message);
+      setError(error.message);
     }
   };
 
@@ -96,13 +96,27 @@ const CreatePost = () => {
       alert("post created!");
       navigate(`/community/${communityId}`);
     } catch (error) {
-      alert(error.message);
+      setError(error.message);
     }
   };
+  useEffect(() => {
+    if (error) {
+      const timer = setTimeout(() => {
+        setError(null);
+      }, 4000);
+
+      return () => clearTimeout(timer);
+    }
+  }, [error]);
 
   return (
     <div>
       <TopBar isLoggedIn={true} />
+      {error && (
+        <Typography variant="h6" color="red">
+          {error}
+        </Typography>
+      )}
       <h2>Create Post</h2>
       <select onChange={handleTemplateChange}>
         <option value="">Select Template</option>

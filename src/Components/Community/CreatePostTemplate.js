@@ -1,12 +1,10 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import {
   Button,
   FormControl,
   FormControlLabel,
-  FormLabel,
-  Radio,
-  RadioGroup,
+  Typography,
   TextField,
   MenuItem,
   Checkbox,
@@ -21,6 +19,7 @@ const PostTemplateCreation = () => {
   ]);
   const { id: communityId } = useParams();
   const navigate = useNavigate();
+  const [error, setError] = useState(null);
 
   const handleChange = (index, field, value) => {
     const newFields = [...dataFields];
@@ -42,8 +41,14 @@ const PostTemplateCreation = () => {
   const handleSubmit = async () => {
     try {
       const token = localStorage.getItem("token");
-      console.log("RESP BODY", JSON.stringify({ templateName, dataFields }));
-      console.log("URL", `${BASE_URL}/template?communityId=${communityId}`);
+      if (dataFields.length === 0) {
+        throw new Error("Template fields cannot be empty");
+      }
+      for (let i = 0; i < dataFields.length; i++) {
+        if (!dataFields[i].name.trim()) {
+          throw new Error("Field name cannot be empty");
+        }
+      }
       const response = await fetch(
         `${BASE_URL}/template?communityId=${communityId}`,
         {
@@ -61,26 +66,35 @@ const PostTemplateCreation = () => {
       if (response?.ok) {
         navigate(`/community/${communityId}`);
         const responseData = await response.json();
-        console.log("Post template created:", responseData);
-
-        // Add any further logic here, such as updating state or redirecting
       } else {
         const errorData = await response.text();
         throw new Error(errorData);
-        // Handle error accordingly
       }
     } catch (error) {
-      console.error("Error creating post template:", error);
-      alert(error.message);
-      // Handle error accordingly
+      setError(error.message);
     }
   };
+
+  useEffect(() => {
+    if (error) {
+      const timer = setTimeout(() => {
+        setError(null);
+      }, 4000);
+
+      return () => clearTimeout(timer);
+    }
+  }, [error]);
 
   return (
     <div
       style={{ display: "flex", flexDirection: "column", alignItems: "center" }}
     >
       <TopBar isLoggedIn={true} />
+      {error && (
+        <Typography variant="h6" color="red">
+          {error}
+        </Typography>
+      )}
       <TextField
         label="Template Name"
         required

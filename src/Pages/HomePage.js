@@ -21,6 +21,7 @@ const HomePage = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const token = localStorage.getItem("token");
   const [searchQuery, setSearchQuery] = useState("");
+  const [error, setError] = useState(null);
 
   const fetchCommunities = async () => {
     try {
@@ -45,7 +46,13 @@ const HomePage = () => {
         throw new Error(error);
       }
     } catch (error) {
-      alert(error.message);
+      if (error.message) {
+        setError(error.message);
+      } else {
+        setError(
+          "Unexpected Error Happened. Please clear your cache and try log in again"
+        );
+      }
     }
   };
   const handleSearchChange = (event) => {
@@ -83,7 +90,13 @@ const HomePage = () => {
         throw new Error(error);
       }
     } catch (error) {
-      alert(error.message);
+      if (error.message) {
+        setError(error.message);
+      } else {
+        setError(
+          "Unexpected Error Happened. Please clear your cache and try log in again"
+        );
+      }
     }
   };
 
@@ -119,69 +132,73 @@ const HomePage = () => {
   return (
     <>
       <TopBar isLoggedIn={isLoggedIn} />
-      <Container>
-        <TextField
-          variant="outlined"
-          label="Search for Communities"
-          value={searchQuery}
-          onChange={handleSearchChange}
-          style={{
-            marginTop: "10px",
-            marginBottom: "10px",
-            width: "100%",
-          }}
-        />
-        <Typography variant="h4" gutterBottom>
-          Communities
-        </Typography>
-        <Grid container spacing={3}>
-          {filteredCommunities.map((community) => (
-            <Box
-              key={community.id}
-              width={{ xs: "100%", sm: "50%", md: "33.33%", lg: "25%" }}
-              padding="10px"
-            >
-              <CommunityCard
-                name={community.name}
-                description={community.description}
-                id={community.id}
-              />
-            </Box>
-          ))}
-        </Grid>
-
-        <Typography variant="h4" gutterBottom>
-          Latest Posts
-        </Typography>
-        <Grid container spacing={3}>
-          {posts
-            .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
-            .map((post) => (
-              <Grid item key={post.id} xs={12} sm={6} md={4}>
-                <Card>
-                  <CardContent>
-                    <Typography variant="body2" color="textSecondary">
-                      posted by: {post.created_by.username}
-                    </Typography>
-                    {Object.keys(post.content).map((key) => (
-                      <Typography key={key} color="text.secondary">
-                        <strong>{key}: </strong>
-                        {renderFieldValue(post.content[key])}
-                      </Typography>
-                    ))}
-                    <Link
-                      to={`/community/${post.community.id}/post-details/${post.id}`}
-                    >
-                      <Button variant="contained" color="primary">
-                        Details
-                      </Button>
-                    </Link>
-                  </CardContent>
-                </Card>
-              </Grid>
+      {!error ? (
+        <Container>
+          <TextField
+            variant="outlined"
+            label="Search for Communities"
+            value={searchQuery}
+            onChange={handleSearchChange}
+            style={{
+              marginTop: "10px",
+              marginBottom: "10px",
+              width: "100%",
+            }}
+          />
+          <Typography variant="h4" gutterBottom>
+            Communities
+          </Typography>
+          <Grid container spacing={3}>
+            {filteredCommunities.map((community) => (
+              <Box
+                key={community.id}
+                width={{ xs: "100%", sm: "50%", md: "33.33%", lg: "25%" }}
+                padding="10px"
+              >
+                <CommunityCard
+                  name={community.name}
+                  description={community.description}
+                  id={community.id}
+                />
+              </Box>
             ))}
-        </Grid>
-      </Container>
+          </Grid>
+
+          <Typography variant="h4" gutterBottom>
+            Latest Posts
+          </Typography>
+          <Grid container spacing={3}>
+            {posts
+              .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+              .map((post) => (
+                <Grid item key={post.id} xs={12} sm={6} md={4}>
+                  <Card>
+                    <CardContent>
+                      <Typography variant="body2" color="textSecondary">
+                        posted by: {post.created_by.username}
+                      </Typography>
+                      {Object.keys(post.content).map((key) => (
+                        <Typography key={key} color="text.secondary">
+                          <strong>{key}: </strong>
+                          {renderFieldValue(post.content[key])}
+                        </Typography>
+                      ))}
+                      <Link
+                        to={`/community/${post.community.id}/post-details/${post.id}`}
+                      >
+                        <Button variant="contained" color="primary">
+                          Details
+                        </Button>
+                      </Link>
+                    </CardContent>
+                  </Card>
+                </Grid>
+              ))}
+          </Grid>
+        </Container>
+      ) : (
+        <Typography variant="h4">{error}</Typography>
+      )}
     </>
   );
 };

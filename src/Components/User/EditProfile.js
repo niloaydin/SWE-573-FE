@@ -12,6 +12,7 @@ const EditProfilePage = () => {
     username: "",
     avatar: "",
   });
+  const [error, setError] = useState(null);
   const token = localStorage.getItem("token");
 
   const navigate = useNavigate();
@@ -41,7 +42,7 @@ const EditProfilePage = () => {
         });
       } catch (error) {
         console.error("Error fetching user data:", error.message);
-        alert(error.message);
+        setError(error.message);
       }
     };
 
@@ -58,6 +59,13 @@ const EditProfilePage = () => {
 
   const handleSubmit = async () => {
     try {
+      if (
+        (editedUserData["avatar"] !== null ||
+          editedUserData["avatar"] !== "") &&
+        !isUrl(editedUserData["avatar"])
+      ) {
+        throw new Error("Provide a proper url for Avatar!");
+      }
       const response = await fetch(`${BASE_URL}/users/profile/edit`, {
         method: "PUT",
         headers: {
@@ -77,13 +85,33 @@ const EditProfilePage = () => {
       navigate("/profile");
     } catch (error) {
       console.error("Error updating user data:", error.message);
-      alert(error.message);
+      setError(error.message);
     }
   };
+
+  const isUrl = (value) => {
+    const urlPattern = /^(ftp|http|https):\/\/[^ "]+$/;
+    return urlPattern.test(value);
+  };
+  useEffect(() => {
+    if (error) {
+      const timer = setTimeout(() => {
+        setError(null);
+      }, 4000);
+
+      return () => clearTimeout(timer);
+    }
+  }, [error]);
 
   return (
     <div>
       <TopBar isLoggedIn={true} />
+
+      {error && (
+        <Typography variant="h6" color="red">
+          {error}
+        </Typography>
+      )}
       {userData ? (
         <Grid container spacing={1}>
           <Grid item xs={12} sm={4}>
