@@ -123,6 +123,8 @@ const CreatePost = () => {
                 label={field.name}
                 value={fieldValues[field.name]}
                 type={field.type.toLowerCase()}
+                style={{ width: "80%" }}
+                multiline
                 onChange={(e) =>
                   handleFieldValueChange(field.name, e.target.value)
                 }
