@@ -133,16 +133,27 @@ const CreatePost = () => {
               key={field.id}
               sx={{ marginBottom: "10px", marginTop: "20px" }}
             >
-              <TextField
-                label={field.name}
-                value={fieldValues[field.name]}
-                type={field.type.toLowerCase()}
-                style={{ width: "80%" }}
-                multiline
-                onChange={(e) =>
-                  handleFieldValueChange(field.name, e.target.value)
-                }
-              />
+              {field.type.toLowerCase() === "date" ? (
+                <TextField
+                  label={field.name}
+                  value={fieldValues[field.name]}
+                  type="date"
+                  style={{ width: "80%" }}
+                  onChange={(e) =>
+                    handleFieldValueChange(field.name, e.target.value)
+                  }
+                />
+              ) : (
+                <TextField
+                  label={field.name}
+                  value={fieldValues[field.name]}
+                  style={{ width: "80%" }}
+                  multiline
+                  onChange={(e) =>
+                    handleFieldValueChange(field.name, e.target.value)
+                  }
+                />
+              )}
             </Box>
           ))}
           <Button variant="contained" color="primary" onClick={handleSubmit}>
