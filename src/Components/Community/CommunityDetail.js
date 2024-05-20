@@ -367,11 +367,14 @@ const CommunityDetail = () => {
           },
         }
       );
+
       if (response.ok) {
         const data = await response.json();
         setFilteredPosts(data);
         if (data.length === 0) {
           alert("There is no posts with this requirements!");
+        } else {
+          alert(`${data.length} post/s found`);
         }
       } else {
         throw new Error(await response.text());
