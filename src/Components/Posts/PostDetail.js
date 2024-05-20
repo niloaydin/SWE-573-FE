@@ -164,12 +164,13 @@ const PostDetail = () => {
 
   return (
     <>
-      <TopBar isLoggedIn={true} />
+      {" "}
       {error && (
         <Typography variant="h6" color="red">
           {error}
         </Typography>
       )}
+      <TopBar isLoggedIn={true} />
       <Container sx={{ marginTop: "20px" }}>
         <Box sx={{ marginTop: "20px", display: "flex", flexWrap: "wrap" }}>
           {post && (
@@ -185,12 +186,10 @@ const PostDetail = () => {
                         key={field.name}
                         name={field.name}
                         label={field.name}
-                        multiline
-                        fullWidth
                         value={formData[field.name] || ""}
                         onChange={handleInputChange}
                         type={field.type.toLowerCase()}
-                        sx={{ marginBottom: "10px", marginTop: "10px" }}
+                        sx={{ marginBottom: "10px" }}
                       />
                     ))}
                     <Button
@@ -204,10 +203,10 @@ const PostDetail = () => {
                 ) : (
                   <>
                     {Object.keys(post.content).map((key) => (
-                      <TextField multiline key={key} color="text.secondary">
+                      <Typography key={key} color="text.secondary">
                         <strong>{key}: </strong>
                         {renderFieldValue(post.content[key])}
-                      </TextField>
+                      </Typography>
                     ))}
                     <Button
                       variant="contained"
