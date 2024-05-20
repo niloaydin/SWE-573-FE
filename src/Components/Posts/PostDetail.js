@@ -52,14 +52,14 @@ const PostDetail = () => {
   }, [post]);
   useEffect(() => {
     if (post) {
-      const initialFormData = post.content;
+      const initialFormData = post?.content;
       console.log("INITIAL FORM DATA", initialFormData);
       setFormData(initialFormData);
     }
   }, [post]);
 
   useEffect(() => {
-    setTemplate(templates.find((template) => template.id === post.templateId));
+    setTemplate(templates.find((template) => template.id === post?.templateId));
   }, [templates, post]);
 
   const fetchTemplates = async () => {
