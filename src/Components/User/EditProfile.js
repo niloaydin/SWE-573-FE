@@ -66,8 +66,6 @@ const EditProfilePage = () => {
         },
         body: JSON.stringify(editedUserData),
       });
-      alert(`${BASE_URL}/users/profile/edit`);
-      console.log(JSON.stringify(editedUserData));
 
       if (!response.ok) {
         throw new Error(await response.text());

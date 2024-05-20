@@ -42,11 +42,7 @@ const HomePage = () => {
         setCommunities(data);
       } else {
         const error = await response.text();
-        if (error === "Token has expired") {
-          localStorage.removeItem("token");
-        } else {
-          throw new Error(error);
-        }
+        throw new Error(error);
       }
     } catch (error) {
       alert(error.message);
@@ -84,11 +80,7 @@ const HomePage = () => {
         console.log(data);
       } else {
         const error = await response.text();
-        if (error === "Token has expired") {
-          localStorage.removeItem("token");
-        } else {
-          throw new Error(error);
-        }
+        throw new Error(error);
       }
     } catch (error) {
       alert(error.message);
