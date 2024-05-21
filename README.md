@@ -15,6 +15,12 @@ After cloning the repositoryto local machine, you need to check if Node js and N
 #### If Node Js or Npm does not exist:
 
 [This article](https://nodejs.org/en/learn/getting-started/how-to-install-nodejs) would be helpfull to install node.js and npm according to local operation system. 
+#### IMPORTANT NOTE
+The current repository includes the deployed backend url in the ```baseurl.js``` file. 
+
+In order to connect to your local backend:
+
+change the **url** in the ```baseUrl.js``` file to ```http://localhost:8080/api/v1```. 
 
 #### If Node Js exists:
 
